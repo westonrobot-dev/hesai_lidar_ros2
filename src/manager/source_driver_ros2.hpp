@@ -104,6 +104,8 @@ protected:
   // Convert Angular Velocity from degree/s to radian/s
   // double From_degs_To_rads(double degree);
   std::string frame_id_;
+  // ros.drop_empty_points: leave out points at the sensor origin (no return)
+  bool drop_empty_points_ = false;
 
   rclcpp::Subscription<std_msgs::msg::UInt8MultiArray>::SharedPtr crt_sub_;
   rclcpp::Subscription<hesai_ros_driver::msg::UdpFrame>::SharedPtr pkt_sub_;
@@ -125,6 +127,7 @@ inline void SourceDriver::Init(const YAML::Node& config)
   DriveYamlParam yaml_param;
   yaml_param.GetDriveYamlParam(config, driver_param);
   frame_id_ = driver_param.input_param.frame_id;
+  YamlRead<bool>(config["ros"], "drop_empty_points", drop_empty_points_, false);
 
   node_ptr_.reset(new rclcpp::Node("hesai_ros_driver_node"));
   if (driver_param.input_param.send_point_cloud_ros) {
@@ -289,9 +292,14 @@ inline sensor_msgs::msg::PointCloud2 SourceDriver::ToRosMsg(const LidarDecodedFr
   sensor_msgs::PointCloud2Iterator<float> iter_intensity_(ros_msg, "intensity");
   sensor_msgs::PointCloud2Iterator<uint16_t> iter_ring_(ros_msg, "ring");
   sensor_msgs::PointCloud2Iterator<double> iter_timestamp_(ros_msg, "timestamp");
+  uint32_t kept = 0;
   for (size_t i = 0; i < points_number; i++)
   {
     LidarPointXYZIRT point = pPoints[i];
+    if (drop_empty_points_ && point.x == 0.0f && point.y == 0.0f && point.z == 0.0f) {
+      continue;
+    }
+    ++kept;
     *iter_x_ = point.x;
     *iter_y_ = point.y;
     *iter_z_ = point.z;
@@ -304,6 +312,11 @@ inline sensor_msgs::msg::PointCloud2 SourceDriver::ToRosMsg(const LidarDecodedFr
     ++iter_intensity_;
     ++iter_ring_;
     ++iter_timestamp_;   
+  }
+  if (kept != points_number) {
+    ros_msg.width = kept;
+    ros_msg.row_step = ros_msg.width * ros_msg.point_step;
+    ros_msg.data.resize(kept * ros_msg.point_step);
   }
   // RCLCPP_DEBUG(node_ptr_->get_logger(), "HesaiLidar Runing Status [standby mode:%u]  |  [speed:%u]\n", frame.work_mode, frame.spin_speed);
   RCLCPP_DEBUG(node_ptr_->get_logger(), "%s frame:%d points:%u packet:%d start time:%lf end time:%lf\n", prefix, frame_index, points_number, packet_number, frame_start_timestamp, frame_end_timestamp);

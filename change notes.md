@@ -1,5 +1,10 @@
 # HesaiLidar_ROS_2.0
 
+## Unreleased (westonrobot-dev fork)
+
+## Added
+1. Added `ros.drop_empty_points` (default `false`): when `true`, points at the sensor origin (no return) are left out of the ROS point cloud and its `width` shrinks to match. About half of a JT128 frame. Only the ROS 2 wrapper reads it.
+
 ## V2.0.12
 
 ### Monday April 27th, 2026 20:47:57

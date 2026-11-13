@@ -90,3 +90,4 @@ lidar:
       send_packet_ros: false                              # true: Send packets through ROS 
       send_point_cloud_ros: true                          # true: Send point cloud through ROS    
       send_imu_ros: true                                  # true: Send imu through ROS    
+      drop_empty_points: false                            # true: Leave out no-return points (at the sensor origin) from the point cloud

@@ -209,6 +209,7 @@ lidar:
       send_packet_ros: false                          # true: Send packets through ROS 
       send_point_cloud_ros: true                      # true: Send point cloud through ROS    
       send_imu_ros: true                              # true: Send imu through ROS    
+      drop_empty_points: false                        # true: Leave out no-return points (at the sensor origin) from the point cloud
 ```
 
 
@@ -333,6 +334,7 @@ lidar:
       send_packet_ros: false                          # true: Send packets through ROS 
       send_point_cloud_ros: true                      # true: Send point cloud through ROS    
       send_imu_ros: true                              # true: Send imu through ROS    
+      drop_empty_points: false                        # true: Leave out no-return points (at the sensor origin) from the point cloud
   - driver:
       use_gpu: false
       source_type: 1                                  # The type of data source, 1: real-time lidar connection, 2: pcap, 3: packet rosbag, 4: serial    
@@ -420,4 +422,5 @@ lidar:
       send_packet_ros: false                          # true: Send packets through ROS 
       send_point_cloud_ros: true                      # true: Send point cloud through ROS    
       send_imu_ros: true                              # true: Send imu through ROS    
+      drop_empty_points: false                        # true: Leave out no-return points (at the sensor origin) from the point cloud
 ```
